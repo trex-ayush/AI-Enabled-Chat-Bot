@@ -2,6 +2,22 @@
 
 A full-stack customer support application with authentication, chat sessions, and admin tools. This repository contains a backend (Node.js/Express/MongoDB) and a frontend (React + Vite).
 
+### 🔐 Test Credentials
+
+Use the following test accounts to explore the application:
+
+### 🧑‍💼 User Login
+- **Email:** `ayush@gmail.com`  
+- **Password:** `Ayush@123`
+
+### 🛠️ Admin Login
+- **Email:** `admin@company.com`  
+- **Password:** `admin123`
+
+---
+
+
+
 ### Features
 - Secure authentication with httpOnly JWT cookies
 - User registration/login/logout and profile management
