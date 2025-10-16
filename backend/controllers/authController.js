@@ -15,9 +15,15 @@ const comparePassword = async (candidatePassword, hashedPassword) => {
 };
 
 // Set cookie options
+const isProd = process.env.NODE_ENV === "production";
 const cookieOptions = {
   httpOnly: true,
   maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  sameSite: isProd ? "none" : "lax",
+  secure: isProd,
+  // If using subdomains in prod, consider:
+  // domain: isProd ? ".yourdomain.com" : undefined,
+  path: "/",
 };
 
 const register = async (req, res) => {

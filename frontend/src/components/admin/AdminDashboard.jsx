@@ -32,12 +32,18 @@ const AdminDashboard = () => {
     { id: 'users', name: 'User Management', icon: '👥' },
   ];
 
+  // Calculate pending chats count safely
+  const getPendingChatsCount = () => {
+    if (!stats?.escalatedChats) return 0;
+    return (stats.escalatedChats.pending || 0) + (stats.escalatedChats.inProgress || 0);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading admin dashboard...</p>
+          <p className="mt-4 text-gray-600 font-medium">Loading admin dashboard...</p>
         </div>
       </div>
     );
@@ -50,38 +56,48 @@ const AdminDashboard = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <h1 className="text-xl font-semibold text-gray-900">
+              <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
                 Admin Dashboard
               </h1>
             </div>
-            <div className="flex space-x-4">
-              <span className="text-sm text-gray-700">
-                Administrator Panel
-              </span>
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              <div className="flex items-center space-x-2">
+                <div className="hidden sm:block w-2 h-2 bg-green-500 rounded-full"></div>
+                <span className="text-xs sm:text-sm text-gray-700 font-medium">
+                  Administrator
+                </span>
+              </div>
             </div>
           </div>
         </div>
       </nav>
 
       {/* Tab Navigation */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex space-x-8">
+      <div className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex space-x-4 sm:space-x-8 overflow-x-auto scrollbar-hide">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === tab.id
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
+                className={`
+                  relative py-4 px-2 sm:px-4 border-b-2 font-medium text-xs sm:text-sm
+                  whitespace-nowrap transition-all duration-200 flex items-center
+                  ${
+                    activeTab === tab.id
+                      ? 'border-blue-500 text-blue-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }
+                `}
               >
-                <span className="mr-2">{tab.icon}</span>
-                {tab.name}
-                {tab.id === 'chats' && stats && (
-                  <span className="ml-2 bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">
-                    {stats.escalatedChats.pending + stats.escalatedChats.inProgress}
+                <span className="mr-1 sm:mr-2 text-base sm:text-lg">{tab.icon}</span>
+                <span className="hidden sm:inline">{tab.name}</span>
+                <span className="sm:hidden">{tab.name.split(' ')[0]}</span>
+                
+                {/* Notification Badge */}
+                {tab.id === 'chats' && getPendingChatsCount() > 0 && (
+                  <span className="ml-2 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full min-w-[20px] text-center animate-pulse">
+                    {getPendingChatsCount()}
                   </span>
                 )}
               </button>
@@ -91,10 +107,12 @@ const AdminDashboard = () => {
       </div>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        {activeTab === 'dashboard' && <DashboardStats stats={stats} />}
-        {activeTab === 'chats' && <EscalatedChats />}
-        {activeTab === 'users' && <UserManagement />}
+      <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <div className="transition-all duration-300 ease-in-out">
+          {activeTab === 'dashboard' && <DashboardStats stats={stats} />}
+          {activeTab === 'chats' && <EscalatedChats />}
+          {activeTab === 'users' && <UserManagement />}
+        </div>
       </main>
     </div>
   );

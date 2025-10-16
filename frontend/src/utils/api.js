@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = "https://ai-enabled-chat-bot-backend.onrender.com/api";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api";
 
 // Configure axios to include credentials (cookies)
 axios.defaults.withCredentials = true;
@@ -39,7 +39,7 @@ export const supportAPI = {
   // New endpoints for user chat history
   getUserChats: (page = 1, limit = 20) =>
     axios.get(`${API_BASE_URL}/support/user/chats`, {
-      params: { page, limit }
+      params: { page, limit },
     }),
 
   getUserSession: (sessionId) =>

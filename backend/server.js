@@ -7,6 +7,9 @@ require("dotenv").config();
 
 const app = express();
 
+// Trust proxy for secure cookies behind reverse proxies (Heroku/Render/Nginx)
+app.set("trust proxy", 1);
+
 // Middleware
 app.use(
   cors({
