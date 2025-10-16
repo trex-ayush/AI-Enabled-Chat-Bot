@@ -67,11 +67,11 @@ const checkEscalation = (aiResponse, userMessage) => {
     'legal action', 'sue', 'lawyer', 'supervisor', 'manager now'
   ];
   
-  const lowerResponse = aiResponse.toLowerCase();
   const lowerMessage = userMessage.toLowerCase();
   
+  // Only consider USER message for escalation intent to avoid self-triggering
   const hasEscalationKeyword = escalationKeywords.some(keyword => 
-    lowerResponse.includes(keyword) || lowerMessage.includes(keyword)
+    lowerMessage.includes(keyword)
   );
 
   // Check for multiple negative sentiment indicators
@@ -103,11 +103,31 @@ const isCustomerSupportQuery = (message) => {
     'payment', 'billing', 'invoice', 'charge', 'price', 'cost', 'fee',
     'error', 'problem', 'issue', 'not working', 'broken', 'fix', 'help',
     'support', 'help', 'contact', 'service', 'policy', 'terms', 'faq',
-    'product', 'item', 'feature', 'how to', 'tutorial', 'guide'
+    'product', 'item', 'feature', 'how to', 'tutorial', 'guide', 'steps', 'instructions'
   ];
 
   const lowerMessage = message.toLowerCase();
   return supportKeywords.some(keyword => lowerMessage.includes(keyword));
+};
+
+const isFollowUpQuery = (message, conversationHistory) => {
+  if (!Array.isArray(conversationHistory) || conversationHistory.length === 0) {
+    return false;
+  }
+
+  const lower = message.toLowerCase().trim();
+  // Common follow-up patterns that rely on prior context
+  const followUpSignals = [
+    'steps', 'instructions', 'more details', 'details', 'how', 'what next',
+    'can you', 'could you', 'please', 'that', 'those', 'it', 'them', 'explain'
+  ];
+
+  if (followUpSignals.some(token => lower.includes(token))) {
+    return true;
+  }
+
+  // Very short messages likely depend on context (e.g., "and then?", "how?")
+  return lower.length <= 40;
 };
 
 // Updated createSession - Only creates session ID, doesn't save to DB yet
@@ -146,7 +166,7 @@ const handleMessage = async (req, res) => {
       });
     }
 
-    if (!isCustomerSupportQuery(message)) {
+    if (!isCustomerSupportQuery(message) && !isFollowUpQuery(message, (await Session.findOne({ sessionId }))?.conversationHistory)) {
       return res.json({
         success: true,
         response: "I'm here to help with customer support questions like account issues, orders, billing, or technical support. How can I assist you with our services today?",
